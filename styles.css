@@ -1,0 +1,498 @@
+:root {
+    --primary-color: #2563eb;
+    --bg-color: #f8fafc;
+    --border-color: #e2e8f0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: #333;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: 0.2s;
+}
+
+.tab-btn:hover { color: var(--primary-color); }
+.tab-btn.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    font-family: monospace;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: vertical;
+}
+
+input[type="number"] {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    width: 120px;
+}
+
+.hidden { display: none; }
+.text-muted { color: #64748b; font-size: 0.9em; }
+
+/* Leg Config UI */
+#legsContainer {
+    background: var(--bg-color);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.leg-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed #cbd5e1;
+}
+.leg-item:last-child { border-bottom: none; }
+
+/* Team Editor UI */
+.team-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+.team-item input {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* เพิ่มเติมสำหรับ Tab 3 */
+.section-header {
+    margin-bottom: 15px;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 10px;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background: var(--border-color);
+    margin: 25px 0;
+}
+
+/* FIFA Day Config */
+.fd-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background: var(--bg-color);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+.fd-row span { flex: 1; font-weight: bold; }
+.fd-row input { width: 80px; margin-left: 10px; text-align: center; }
+
+/* Match Fixtures */
+.round-container {
+    margin-bottom: 40px;
+}
+.round-title {
+    background: #1e293b;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.match-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.btn-swap {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+}
+.btn-swap:hover { background: #e2e8f0; }
+
+.leg-title {
+    font-size: 0.9em;
+    color: var(--primary-color);
+    font-weight: bold;
+    margin: 10px 0 5px 0;
+}
+
+.match-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+.team-name {
+    flex: 1;
+    font-weight: 500;
+}
+.team-name.home { text-align: right; }
+.team-name.away { text-align: left; }
+
+.btn-random {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 1.1em;
+    min-width: 100px;
+    transition: 0.2s;
+}
+.btn-random:hover { background: #1d4ed8; }
+
+.export-box {
+    background: #f8fafc;
+    border: 1px dashed #94a3b8;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 0.85em;
+    color: #475569;
+    text-align: center;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.aggregate-row {
+    text-align: center;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    padding: 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #166534;
+    margin-top: 10px;
+}
+
+/* --- Tab 4: Bracket Styles --- */
+.bracket-scroll-wrapper {
+    overflow-x: auto;
+    padding: 20px 10px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.bracket-layout {
+    display: flex;
+    gap: 40px;
+    min-width: max-content;
+    padding: 10px;
+}
+
+.bracket-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.bracket-header {
+    text-align: center;
+    font-weight: bold;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.third-place-header {
+    background: #475569;
+}
+
+.bracket-match {
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    width: 280px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.bracket-team {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.9em;
+}
+
+.bracket-team:last-child {
+    border-bottom: none;
+}
+
+.bracket-team.winner {
+    background-color: #f0fdf4;
+    border-left: 4px solid #22c55e;
+}
+
+.bracket-team-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+/* ส่วนแสดงคะแนน */
+.score-wrapper {
+    display: flex;
+    gap: 8px;
+    font-family: monospace;
+    font-size: 1.05em;
+    align-items: center;
+}
+
+.score-leg { color: #64748b; }
+.score-agg { font-weight: bold; color: #0f172a; }
+.score-pen { color: #dc2626; font-size: 0.85em; margin-left: 2px;}
+
+/* --- Tab 5: Export Styles --- */
+#exportTextarea, #exportScoreTextarea {
+    width: 100%;
+    height: 250px;
+    padding: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    resize: vertical;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #334155;
+}
+
+.btn-action {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: 0.2s;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-action:hover { background-color: #059669; }
+.btn-action:active { transform: scale(0.99); }
+
+/* --- Styles สำหรับปุ่มล้างข้อมูล --- */
+.btn-danger {
+    background-color: #ef4444; color: white; border: none; 
+    padding: 10px 15px; border-radius: 6px; cursor: pointer; 
+    transition: 0.2s; flex: 1; font-weight: bold; font-size: 0.95em;
+}
+.btn-danger:hover { background-color: #dc2626; }
+
+.btn-warning {
+    background-color: #f59e0b; color: white; border: none; 
+    padding: 10px 15px; border-radius: 6px; cursor: pointer; 
+    transition: 0.2s; flex: 1; font-weight: bold; font-size: 0.95em;
+}
+.btn-warning:hover { background-color: #d97706; }
+
+.btn-clear-match {
+    background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5;
+    padding: 4px 10px; border-radius: 4px; cursor: pointer;
+    font-size: 0.85em; transition: 0.2s;
+}
+.btn-clear-match:hover { background: #fecaca; }
+
+/* จัดเลย์เอาต์ Header ของแต่ละแมตช์ใหม่ */
+.match-header-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.match-header-layout > div { flex: 1; }
+.match-header-layout .center { text-align: center; }
+.match-header-layout .right { text-align: right; }
+
+/* --- อัปเดต Tab 4: โครงสร้างสายการแข่งขันและเส้นเชื่อม (Connecting Lines) --- */
+
+.bracket-layout {
+    display: flex;
+    flex-direction: column; /* เปลี่ยนจากแนวนอนเป็นแนวตั้ง เพื่อแยกชิงอันดับที่ 3 ลงไปด้านล่างสุด */
+    min-width: max-content;
+    padding: 10px;
+    gap: 0;
+}
+
+.bracket-columns-wrapper {
+    display: flex;
+    gap: 40px;
+}
+
+.bracket-pairs-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* ทำให้คู่ชิงชนะเลิศอยู่ตรงกลางของคอลัมน์เสมอ */
+.bracket-pairs-wrapper.final-wrapper {
+    justify-content: center;
+}
+
+/* Wrapper สำหรับจับคู่ 2 แมตช์ให้เชื่อมกัน */
+.bracket-pair {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* ให้ระยะห่างเฉลี่ยเท่ากันเพื่อรองรับเส้นเชื่อม */
+    flex: 1;
+    position: relative;
+    min-height: 160px;
+}
+
+.bracket-match {
+    margin: 10px 0;
+    z-index: 2; /* ให้อยู่เหนือเส้นเชื่อมเสมอ */
+    position: relative;
+}
+
+/* --- วาดเส้นเชื่อมต่อ (เฉพาะระบบ Direct Pairing) --- */
+
+/* 1. วาดเส้นก้ามปู (Bracket Shape ']') รวบ 2 แมตช์ */
+.bracket-columns-wrapper.direct .bracket-column:not(:last-child) .bracket-pair:not(.single-match-pair)::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 25%;
+    height: 50%;
+    width: 20px;
+    border-right: 2px solid #94a3b8;
+    border-top: 2px solid #94a3b8;
+    border-bottom: 2px solid #94a3b8;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    z-index: 1;
+}
+
+/* 2. วาดเส้นตรงแนวนอน (-) พุ่งออกจากกึ่งกลางก้ามปูไปหาคู่ในรอบถัดไป */
+.bracket-columns-wrapper.direct .bracket-column:not(:last-child) .bracket-pair:not(.single-match-pair)::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    width: 20px;
+    border-top: 2px solid #94a3b8;
+    z-index: 1;
+}
+
+/* 3. กรณีมีคู่เศษ (เหลือแมตช์เดียวในบล็อก) ให้ตีเป็นเส้นตรงยาวข้ามไปเลย */
+.bracket-columns-wrapper.direct .bracket-column:not(:last-child) .bracket-pair.single-match-pair::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    width: 40px;
+    border-top: 2px solid #94a3b8;
+    z-index: 1;
+}
+
+/* --- คอนเทนเนอร์ของรอบชิงอันดับที่ 3 --- */
+.third-place-container {
+    display: flex;
+    justify-content: flex-end; /* จัดชิดขวาให้ตำแหน่งตรงกับรอบชิงชนะเลิศด้านบนพอดี */
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px dashed #cbd5e1; /* เส้นประคั่นแบ่งโซน */
+    width: 100%;
+}
+
+.third-place-content {
+    width: 280px; /* ขนาดความกว้างล็อคไว้ให้เท่ากับ bracket-match */
+}
+
+/* --- Styles สำหรับปุ่ม Import / Export --- */
+.btn-info {
+    background-color: #3b82f6; color: white; border: none; 
+    padding: 12px 20px; border-radius: 6px; cursor: pointer; 
+    transition: 0.2s; font-weight: bold; font-size: 1em;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+}
+.btn-info:hover { background-color: #2563eb; }
+.btn-info:active { transform: scale(0.99); }

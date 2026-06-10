@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Tournament Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>จัดการทัวร์นาเมนต์แบบแพ้คัดออก</h2>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-target="tab1">ข้อมูลพื้นฐาน</button>
+            <button class="tab-btn" data-target="tab2">จัดการค่าพลัง</button>
+            <button class="tab-btn" data-target="tab3">สร้างสายการแข่งขัน</button>
+            <button class="tab-btn" data-target="tab4">โปรแกรมการแข่งขัน</button>
+            <button class="tab-btn" data-target="tab5">ผลการแข่งขัน</button>
+        </div>
+
+        <div id="tab1" class="tab-content active">
+        
+        <div class="form-group">
+                <label style="font-weight: bold;">ชื่อทัวร์นาเมนต์</label>
+                <input type="text" id="tournamentNameInput" placeholder="กรอกชื่อทัวร์นาเมนต์ เช่น abcd" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1.05em;" value="TournamentA">
+            </div>
+        
+           <div class="form-group" style="margin-bottom: 20px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 15px;">
+                <label style="font-weight: bold;">นำเข้าความคืบหน้าทัวร์นาเมนต์</label>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+                <button id="btnImportProgress" class="btn-info" style="width: 100%;">
+                    📂 โหลดไฟล์ความคืบหน้า (.json)
+                </button>
+            </div>
+        
+            <div class="form-group">
+                <label>ข้อมูลทีม (รูปแบบ CSV: id, name, match, ovr)</label>
+                <textarea id="csvInput" placeholder="ตัวอย่าง:&#10;DAI, ไดโบนีเซีย, 1, 99&#10;THA, ไทย, 2, 85&#10;JPN, ญี่ปุ่น, 3, 90&#10;KOR, เกาหลีใต้, 4, 88"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="legConfigCheck"> กำหนดจำนวนนัดของการเจอกัน
+                </label>
+                <div id="legsContainer" class="hidden">
+                    <div id="legsList"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>ค่าสัมประสิทธิ์ทัวร์นาเมนต์</label>
+                <input type="number" id="coefficientInput" placeholder="เช่น 35">
+            </div>
+
+            <div class="form-group">
+                <label>ระบบการประกบคู่รอบต่อไป:</label>
+                <label><input type="radio" name="pairing" value="direct" checked> สายเดียวกัน (โดยตรง)</label>
+                <label><input type="radio" name="pairing" value="random"> สุ่มใหม่ (Random Draw)</label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="thirdPlaceCheck" disabled> มีรอบชิงอันดับที่ 3
+                </label>
+                <small class="text-muted">(รองรับเฉพาะกรณีจำนวนทีมสมบูรณ์ หรือคู่แข่งขันเป็น 2 ยกกำลัง n)</small>
+            </div>
+            
+            <div class="form-group" style="margin-top: 10px;">
+                <label style="font-weight: bold; color: var(--primary-color);">
+                    <input type="checkbox" id="autoOvrCheck"> ⚡ เปิดระบบปรับค่าพลัง (OVR) อัตโนมัติตามผลงาน
+                </label>
+                <div id="autoOvrContainer" class="hidden" style="margin-left: 20px; padding: 15px; background: #f8fafc; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 5px;">
+                    <p class="text-muted" style="margin-top: 0; margin-bottom: 10px;">กำหนดการเปลี่ยนแปลงค่าพลังในแต่ละนัด (ใส่จำนวนเต็มหรือติดลบได้):</p>
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <label>ชนะ: <input type="number" id="ovrModWin" value="0" style="width: 70px; padding: 5px; text-align: center;"></label>
+                        <label>เสมอ: <input type="number" id="ovrModDraw" value="0" style="width: 70px; padding: 5px; text-align: center;"></label>
+                        <label>แพ้: <input type="number" id="ovrModLose" value="0" style="width: 70px; padding: 5px; text-align: center;"></label>
+                    </div>
+                    <small class="text-muted" style="display: block; margin-top: 10px;">* ระบบจะสะสมโบนัสให้ทุกนัดที่แข่งจบ และค่าพลังจะถูกล็อกไม่ให้เกิน 99 และไม่ต่ำกว่า 1 เสมอ</small>
+                </div>
+            </div>
+            
+            <hr class="divider">
+            <div class="form-group" style="display: flex; gap: 15px; margin-top: 10px;">
+                <button id="btnClearAll" class="btn-danger">🗑️ ล้างข้อมูลทั้งหมด</button>
+                <button id="btnClearResults" class="btn-warning">🔄 ล้างข้อมูลผลการแข่งขัน</button>
+            </div>
+        </div>
+
+        <div id="tab2" class="tab-content">
+            <div id="teamListContainer">
+                <p class="text-muted">กรุณากรอกข้อมูลทีมในแท็บ 'ข้อมูลพื้นฐาน' ก่อน</p>
+            </div>
+        </div>
+
+        <div id="tab3" class="tab-content">
+            <div class="section-header">
+                <h3>ตั้งค่าฟีฟ่าเดย์ (FIFA Day)</h3>
+            </div>
+            <div id="fifaDayConfigContainer" class="form-group">
+                <p class="text-muted">กรุณาสร้างสายการแข่งขันจากข้อมูลแท็บที่ 1 ก่อน</p>
+            </div>
+
+            <hr class="divider">
+
+            <div class="section-header">
+                <h3>โปรแกรมและผลการแข่งขัน</h3>
+            </div>
+            <div id="fixturesContainer">
+                <p class="text-muted">โปรแกรมจะแสดงที่นี่เมื่อข้อมูลพร้อม</p>
+            </div>
+        </div>
+        <div id="tab4" class="tab-content">
+            <div class="section-header">
+                <h3>แผนผังสายการแข่งขัน (Tournament Bracket)</h3>
+            </div>
+            <div class="bracket-scroll-wrapper">
+                <div id="bracketContainer" class="bracket-layout">
+                    <p class="text-muted">สายการแข่งขันจะแสดงที่นี่เมื่อข้อมูลในแท็บ 3 พร้อมใช้งาน</p>
+                </div>
+            </div>
+        </div>
+        <div id="tab5" class="tab-content">
+            <div class="section-header">
+                <h3>ส่งออกรหัสอ้างอิงผลการแข่งขัน</h3>
+            </div>
+            <p class="text-muted" style="margin-bottom: 15px;">
+                รหัสผลการแข่งขันของทุกนัดที่สุ่มคะแนนแล้ว จะถูกรวบรวมเรียงลำดับจากรอบแรกสุดจนถึงรอบสุดท้าย ไว้ที่นี่
+            </p>
+            <textarea id="exportTextarea" readonly></textarea>
+            <button id="btnCopyExport" class="btn-action" style="margin-bottom: 15px;">
+                📋 คัดลอกรหัสอ้างอิงทั้งหมด
+            </button>
+
+            <hr class="divider">
+            <div class="section-header">
+                <h3>ส่งออกผลการแข่งขันในเวลา (สกอร์)</h3>
+            </div>
+            <p class="text-muted" style="margin-bottom: 15px;">
+                ผลคะแนนในเวลาปกติและจุดโทษ รูปแบบ: <code>fd,id1,score1,score2,id2,pen1,pen2</code> <br>
+                <small>(หากไม่มีการดวลจุดโทษ pen1 และ pen2 จะแสดงเป็น x,x)</small>
+            </p>
+            <textarea id="exportScoreTextarea" readonly></textarea>
+            <button id="btnCopyScoreExport" class="btn-action">
+                📋 คัดลอกสกอร์ทั้งหมด
+            </button>
+
+            <hr class="divider">
+            <button id="btnExportProgress" class="btn-info" style="width: 100%;">
+                💾 บันทึกความคืบหน้าทัวร์นาเมนต์เป็นไฟล์ (.json)
+            </button>
+        </div>
+    </div>
+
+    <script src="tournamentLogic.js"></script>
+    <script src="state.js"></script>
+    <script src="engine.js"></script>
+    <script src="ui.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
