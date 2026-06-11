@@ -1,63 +1,5 @@
 // engine.js
 const Engine = {
-	
-	// เพิ่มไว้ในออบเจ็กต์ Engine (ไฟล์ engine.js)
-    getTeamCurrentOvr: function(teamId) {
-        const baseTeam = AppState.teams.find(t => t.id === teamId);
-        if (!baseTeam) return 80; // คืนค่าเริ่มต้นสำหรับทีมที่ยังไม่เข้ารอบ (Placeholder)
-        
-        let ovr = parseInt(baseTeam.ovr) || 80;
-        
-        if (AppState.autoOvrEnabled) {
-            let wins = 0, draws = 0, losses = 0;
-            
-            // ลูปเช็คทุกแมตช์ที่แข่งจบแล้วทั้งหมด
-            Object.values(AppState.matchState).forEach(matches => {
-                matches.forEach(match => {
-                    const isHome = match.home.id === teamId;
-                    const isAway = match.away.id === teamId;
-                    if (!isHome && !isAway) return;
-
-                    // คำนวณนัดที่ 1 (ในเวลา 90 นาที และจุดโทษนัดเดียว)
-                    if (match.leg1.h !== null) {
-                        let myScore = isHome ? match.leg1.h : match.leg1.a;
-                        let opScore = isHome ? match.leg1.a : match.leg1.h;
-                        let myPen = isHome ? match.leg1.hp : match.leg1.ap;
-                        let opPen = isHome ? match.leg1.ap : match.leg1.hp;
-
-                        if (myScore > opScore) wins++;
-                        else if (myScore < opScore) losses++;
-                        else {
-                            if (myPen !== null && opPen !== null) {
-                                if (myPen > opPen) wins++;
-                                else if (myPen < opPen) losses++;
-                                else draws++;
-                            } else {
-                                draws++;
-                            }
-                        }
-                    }
-
-                    // คำนวณนัดที่ 2 (เฉพาะผลใน 90 นาที ไม่รวมจุดโทษตัดสินเข้ารอบ)
-                    if (match.isTwoLegs && match.leg2.h !== null) {
-                        // นัดที่ 2 สลับทีมเหย้าเยือน คะแนนเจ้าบ้านจริงๆ คือ match.leg2.a
-                        let myScore2 = isHome ? match.leg2.a : match.leg2.h;
-                        let opScore2 = isHome ? match.leg2.h : match.leg2.a;
-
-                        if (myScore2 > opScore2) wins++;
-                        else if (myScore2 < opScore2) losses++;
-                        else draws++;
-                    }
-                });
-            });
-
-            // คำนวณ OVR ใหม่ และลิมิตเพดานไว้ที่ 1 - 99
-            ovr += (wins * AppState.ovrMod.win) + (draws * AppState.ovrMod.draw) + (losses * AppState.ovrMod.lose);
-            ovr = Math.max(1, Math.min(99, ovr)); 
-        }
-        return ovr;
-    },
-	
     resetBracket: function() {
         AppState.matchState = {};
     },
@@ -68,6 +10,38 @@ const Engine = {
         AppState.fifaDays = {};
 
         let currentTeams = [...AppState.teams];
+
+        // --- [เพิ่มใหม่] ลอจิกการจับคู่และเรียงลำดับตามค่า match ---
+        let matchDict = {};
+        let groupedPairs = [];
+
+        // 1. จัดกลุ่มทีมที่มีค่า match ตรงกัน
+        currentTeams.forEach(team => {
+            const m = String(team.match).trim();
+            if (!matchDict[m]) matchDict[m] = [];
+            matchDict[m].push(team);
+        });
+
+        // 2. เรียงลำดับ key (ค่า match) จากน้อยไปมาก
+        const sortedMatchKeys = Object.keys(matchDict).sort((a, b) => {
+            const numA = parseFloat(a);
+            const numB = parseFloat(b);
+            if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+            return a.localeCompare(b); // สำรองไว้เผื่อค่า match เป็นตัวอักษร
+        });
+
+        // 3. นำกลุ่มที่เรียงแล้วมาสร้างเป็นคู่การแข่งขัน (Pair)
+        sortedMatchKeys.forEach(key => {
+            const group = matchDict[key];
+            if (group.length >= 2) {
+                // ดึง 2 ทีมแรกของกลุ่มมาเจอกัน
+                groupedPairs.push({ home: group[0], away: group[1] });
+            } else if (group.length === 1) {
+                // กรณีเป็นเศษ (มีแค่ 1 ทีมในเลข match นั้น) ให้จับคู่กับ Placeholder รอผู้ชนะ
+                groupedPairs.push({ home: group[0], away: { id: "BYE", name: "รอทีมแข่งขัน...", ovr: 0 } });
+            }
+        });
+        // --------------------------------------------------------
         
         rounds.forEach((round, roundIndex) => {
             const isTwoLegs = AppState.legSelections[round] === "2";
@@ -80,19 +54,20 @@ const Engine = {
             if (round === "รอบชิงอันดับที่ 3") {
                 matchCount = 1;
             } else if (roundIndex === 0) {
-                matchCount = currentTeams.length / 2;
+                matchCount = groupedPairs.length; // ใช้อาเรย์ที่ถูกจัดกลุ่มไว้ด้านบนเป็นเกณฑ์
             } else {
                 let prevRound = rounds[roundIndex-1];
                 if (prevRound === "รอบชิงอันดับที่ 3") prevRound = rounds[roundIndex-2];
-                matchCount = AppState.matchState[prevRound].length / 2;
+                matchCount = Math.floor(AppState.matchState[prevRound].length / 2);
             }
 
             for (let i = 0; i < matchCount; i++) {
                 let homeTeam, awayTeam;
 
-                if (roundIndex === 0 && currentTeams.length >= (i*2+2)) {
-                    homeTeam = currentTeams[i*2];
-                    awayTeam = currentTeams[i*2+1];
+                if (roundIndex === 0 && groupedPairs[i]) {
+                    // กำหนดเหย้าเยือนตามลำดับกลุ่มที่ผ่านการ Sort เรียบร้อยแล้ว
+                    homeTeam = groupedPairs[i].home;
+                    awayTeam = groupedPairs[i].away;
                 } else if (round === "รอบชิงอันดับที่ 3") {
                     homeTeam = { id: `L_SF1`, name: `รอทีมแพ้รอบรองฯ...` };
                     awayTeam = { id: `L_SF2`, name: `รอทีมแพ้รอบรองฯ...` };
@@ -118,7 +93,6 @@ const Engine = {
         });
     },
 
-    // [แก้บั๊กที่นี่] การคำนวณสกอร์รวมของ 2 นัด
     getMatchOutcome: function(match) {
         if (!match.isTwoLegs) {
             if (match.leg1.h === null) return { winner: null, loser: null };
@@ -129,14 +103,12 @@ const Engine = {
         } else {
             if (match.leg1.h === null || match.leg2.h === null) return { winner: null, loser: null };
             
-            // นัดที่ 2 ทีมเยือนดั้งเดิม(a) ได้สิทธิ์เป็นทีมเหย้า ดังนั้นคะแนนเหย้าของนัด 2 (leg2.h) คือของทีมเยือน
             const aggH = match.leg1.h + match.leg2.a; 
             const aggA = match.leg1.a + match.leg2.h; 
             
             if (aggH > aggA) return { winner: match.home, loser: match.away };
             if (aggH < aggA) return { winner: match.away, loser: match.home };
             
-            // กรณีเสมอและดวลจุดโทษในนัด 2 (ap คือจุดโทษของทีม home ดั้งเดิม, hp คือของทีม away)
             if (match.leg2.ap > match.leg2.hp) return { winner: match.home, loser: match.away };
             return { winner: match.away, loser: match.home };
         }
@@ -268,15 +240,60 @@ const Engine = {
         match.leg2 = { h: null, a: null, hp: null, ap: null };
     },
 
-    // [เพิ่มใหม่] ฟังก์ชันล้างเฉพาะผลการแข่ง (เก็บโครงสร้าง FIFA Day ไว้)
     clearAllMatchResults: function(thirdPlaceChecked, pairingSystem) {
-        // แบ็คอัปข้อมูล FIFA Days เอาไว้ก่อน
         const savedFifaDays = { ...AppState.fifaDays };
-        
-        // สั่งสร้างโครงสร้างสายการแข่งขันใหม่ (เพื่อเคลียร์ทีมไปรอบต่อๆ ไป)
         Engine.generateInitialBracket(thirdPlaceChecked, pairingSystem);
-        
-        // คืนค่าฟีฟ่าเดย์กลับเข้าไป
         AppState.fifaDays = savedFifaDays;
+    },
+
+    getTeamCurrentOvr: function(teamId) {
+        const baseTeam = AppState.teams.find(t => t.id === teamId);
+        if (!baseTeam) return 80; 
+        
+        let ovr = parseInt(baseTeam.ovr) || 80;
+        
+        if (AppState.autoOvrEnabled) {
+            let wins = 0, draws = 0, losses = 0;
+            
+            Object.values(AppState.matchState).forEach(matches => {
+                matches.forEach(match => {
+                    const isHome = match.home.id === teamId;
+                    const isAway = match.away.id === teamId;
+                    if (!isHome && !isAway) return;
+
+                    if (match.leg1.h !== null) {
+                        let myScore = isHome ? match.leg1.h : match.leg1.a;
+                        let opScore = isHome ? match.leg1.a : match.leg1.h;
+                        let myPen = isHome ? match.leg1.hp : match.leg1.ap;
+                        let opPen = isHome ? match.leg1.ap : match.leg1.hp;
+
+                        if (myScore > opScore) wins++;
+                        else if (myScore < opScore) losses++;
+                        else {
+                            if (myPen !== null && opPen !== null) {
+                                if (myPen > opPen) wins++;
+                                else if (myPen < opPen) losses++;
+                                else draws++;
+                            } else {
+                                draws++;
+                            }
+                        }
+                    }
+
+                    if (match.isTwoLegs && match.leg2.h !== null) {
+                        let myScore2 = isHome ? match.leg2.a : match.leg2.h;
+                        let opScore2 = isHome ? match.leg2.h : match.leg2.a;
+
+                        if (myScore2 > opScore2) wins++;
+                        else if (myScore2 < opScore2) losses++;
+                        else draws++;
+                    }
+                });
+            });
+
+            ovr += (wins * AppState.ovrMod.win) + (draws * AppState.ovrMod.draw) + (losses * AppState.ovrMod.lose);
+            ovr = Math.max(1, Math.min(99, ovr)); 
+        }
+        return ovr;
     }
 };
